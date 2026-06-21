@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ApiResponse } from '@ai-learning/shared';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -38,15 +39,19 @@ export class LoginComponent {
     this.auth.login(this.form.getRawValue() as { email: string; password: string }).subscribe({
       next: (res) => {
         this.loading = false;
-        if (res.success) {
-          this.router.navigate([this.auth.isAdmin() ? '/admin' : '/dashboard']);
-        } else {
-          this.error = res.error?.message ?? 'Login failed';
+
+        if (res.success && res.data) {
+          const target = this.auth.getPostLoginRoute(res.data.user);
+          void this.router.navigateByUrl(target);
+          return;
         }
+
+        this.error = res.error?.message ?? 'Login failed';
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error = 'Could not connect to the server';
+        const apiError = err.error as ApiResponse<null> | undefined;
+        this.error = apiError?.error?.message ?? 'Could not connect to the server';
       },
     });
   }

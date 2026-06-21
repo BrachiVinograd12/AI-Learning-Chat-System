@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ApiResponse } from '@ai-learning/shared';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -41,15 +42,18 @@ export class RegisterComponent {
       .subscribe({
         next: (res) => {
           this.loading = false;
-          if (res.success) {
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.error = res.error?.message ?? 'Registration failed';
+
+          if (res.success && res.data) {
+            void this.router.navigateByUrl(this.auth.getPostLoginRoute(res.data.user));
+            return;
           }
+
+          this.error = res.error?.message ?? 'Registration failed';
         },
-        error: () => {
+        error: (err) => {
           this.loading = false;
-          this.error = 'Could not connect to the server';
+          const apiError = err.error as ApiResponse<null> | undefined;
+          this.error = apiError?.error?.message ?? 'Could not connect to the server';
         },
       });
   }

@@ -19,10 +19,11 @@ const USER_KEY = 'ai_learning_user';
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
+  private readonly tokenSignal = signal<string | null>(this.loadToken());
   private readonly userSignal = signal<User | null>(this.loadUser());
 
   readonly user = this.userSignal.asReadonly();
-  readonly isAuthenticated = computed(() => !!this.getToken());
+  readonly isAuthenticated = computed(() => !!this.tokenSignal());
   readonly isAdmin = computed(() => this.userSignal()?.role === UserRole.Admin);
 
   constructor(
@@ -45,24 +46,35 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    this.tokenSignal.set(null);
     this.userSignal.set(null);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.tokenSignal();
   }
 
   getCurrentUser(): User | null {
     return this.userSignal();
   }
 
+  getPostLoginRoute(user?: User | null): string {
+    const currentUser = user ?? this.getCurrentUser();
+    return currentUser?.role === UserRole.Admin ? '/admin' : '/dashboard';
+  }
+
   private handleAuthResponse(res: ApiResponse<AuthResponse>): void {
     if (res.success && res.data) {
       localStorage.setItem(TOKEN_KEY, res.data.token);
       localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
+      this.tokenSignal.set(res.data.token);
       this.userSignal.set(res.data.user);
     }
+  }
+
+  private loadToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
   }
 
   private loadUser(): User | null {
