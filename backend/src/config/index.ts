@@ -15,4 +15,6 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:4200',
   mongodbUri: requireEnv('MONGODB_URI', 'mongodb://localhost:27017/ai-learning'),
+  openaiApiKey: process.env.OPENAI_API_KEY ?? '',
+  openaiModel: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
 };
