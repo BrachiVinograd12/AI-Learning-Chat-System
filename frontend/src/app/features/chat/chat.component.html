@@ -1,0 +1,23 @@
+<section class="chat">
+  <h1>AI Chat</h1>
+
+  <div class="chat__messages">
+    @for (msg of messages; track $index) {
+      <div class="chat__message" [class.chat__message--user]="msg.role === 'user'">
+        <strong>{{ msg.role === 'user' ? 'You' : 'Assistant' }}</strong>
+        <p>{{ msg.content }}</p>
+      </div>
+    }
+  </div>
+
+  <form class="chat__input" (ngSubmit)="sendMessage()">
+    <input
+      type="text"
+      [(ngModel)]="message"
+      name="message"
+      placeholder="Type your question..."
+      autocomplete="off"
+    />
+    <button type="submit">Send</button>
+  </form>
+</section>

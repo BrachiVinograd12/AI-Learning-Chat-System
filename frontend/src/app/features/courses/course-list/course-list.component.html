@@ -1,0 +1,23 @@
+<section class="courses">
+  <h1>Courses</h1>
+
+  @if (loading) {
+    <p class="courses__status">Loading courses...</p>
+  } @else if (error) {
+    <p class="courses__status courses__status--error">{{ error }}</p>
+  } @else {
+    <div class="courses__grid">
+      @for (course of courses; track course.id) {
+        <article class="course-card">
+          <h2>{{ course.title }}</h2>
+          <p>{{ course.description }}</p>
+          <div class="course-card__tags">
+            @for (tag of course.tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
