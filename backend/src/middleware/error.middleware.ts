@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '@ai-learning/shared';
 import { AuthError } from '../services/auth.service';
 import { ChatError } from '../services/chat.service';
+import { AdminError } from '../services/admin.service';
 
 export function notFoundHandler(_req: Request, res: Response): void {
   const response: ApiResponse<null> = {
@@ -20,7 +21,7 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
-  if (err instanceof AuthError || err instanceof ChatError) {
+  if (err instanceof AuthError || err instanceof ChatError || err instanceof AdminError) {
     const response: ApiResponse<null> = {
       success: false,
       error: { code: err.code, message: err.message },
