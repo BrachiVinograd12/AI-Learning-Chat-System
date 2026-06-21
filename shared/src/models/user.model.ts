@@ -1,7 +1,7 @@
 export interface User {
   id: string;
+  name: string;
   email: string;
-  displayName: string;
   role: UserRole;
   createdAt: string;
   updatedAt: string;
@@ -9,6 +9,21 @@ export interface User {
 
 export enum UserRole {
   Student = 'student',
-  Instructor = 'instructor',
   Admin = 'admin',
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
 }

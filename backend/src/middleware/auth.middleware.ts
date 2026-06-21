@@ -1,18 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiResponse } from '@ai-learning/shared';
-// import jwt from 'jsonwebtoken';
-// import { jwtConfig } from '../config/jwt.config';
-// import { JwtPayload } from '../types/auth.types';
+import { ApiResponse, UserRole } from '@ai-learning/shared';
+import { AuthService } from '../services/auth.service';
 
-/**
- * Authentication middleware stub.
- *
- * When JWT is implemented:
- * 1. Install: npm install jsonwebtoken @types/jsonwebtoken
- * 2. Read Bearer token from Authorization header
- * 3. Verify with jwt.verify(token, jwtConfig.secret)
- * 4. Attach decoded payload to req.user
- */
+const authService = new AuthService();
+
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
 
@@ -25,24 +16,55 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
     return;
   }
 
-  // const token = authHeader.slice(7);
-  // try {
-  //   const decoded = jwt.verify(token, jwtConfig.secret) as JwtPayload;
-  //   req.user = decoded;
-  //   next();
-  // } catch {
-  //   res.status(401).json({ success: false, error: { code: 'INVALID_TOKEN', message: 'Invalid or expired token' } });
-  // }
+  const token = authHeader.slice(7);
 
-  const response: ApiResponse<null> = {
-    success: false,
-    error: { code: 'NOT_IMPLEMENTED', message: 'JWT authentication is not yet implemented' },
-  };
-  res.status(501).json(response);
+  try {
+    req.user = authService.verifyToken(token);
+    next();
+  } catch {
+    const response: ApiResponse<null> = {
+      success: false,
+      error: { code: 'INVALID_TOKEN', message: 'Invalid or expired token' },
+    };
+    res.status(401).json(response);
+  }
 }
 
-/** Optional auth — attaches user when token is valid, continues otherwise. */
-export function optionalAuthenticate(_req: Request, _res: Response, next: NextFunction): void {
-  // Implement when JWT is ready
+/** Restrict access to users with one of the specified roles. Must run after authenticate. */
+export function authorize(...allowedRoles: UserRole[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      const response: ApiResponse<null> = {
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+      };
+      res.status(401).json(response);
+      return;
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      const response: ApiResponse<null> = {
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+      };
+      res.status(403).json(response);
+      return;
+    }
+
+    next();
+  };
+}
+
+export function optionalAuthenticate(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      req.user = authService.verifyToken(authHeader.slice(7));
+    } catch {
+      // Invalid token — continue without user context
+    }
+  }
+
   next();
 }
