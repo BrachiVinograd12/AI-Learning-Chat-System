@@ -1,0 +1,128 @@
+.admin {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+
+    h1 {
+      margin: 0 0 0.25rem;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+    }
+  }
+
+  &__status {
+    color: #666;
+
+    &--error {
+      color: #c0392b;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+
+  &__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+  }
+
+  &__label {
+    color: #666;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+}
+
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    h2 {
+      margin: 0;
+    }
+
+    select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      font-weight: 600;
+      color: #666;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+}

@@ -1,0 +1,44 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Create account</h1>
+    <p class="subtitle">Start learning with your AI assistant</p>
+
+    @if (error) {
+      <div class="error-banner">{{ error }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Name
+        <input type="text" formControlName="name" placeholder="Your name" />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="field-error">Name is required</span>
+        }
+      </label>
+
+      <label>
+        Email
+        <input type="email" formControlName="email" placeholder="you@example.com" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="field-error">Valid email is required</span>
+        }
+      </label>
+
+      <label>
+        Password
+        <input type="password" formControlName="password" placeholder="••••••••" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field-error">Password must be at least 8 characters</span>
+        }
+      </label>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Creating account...' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>

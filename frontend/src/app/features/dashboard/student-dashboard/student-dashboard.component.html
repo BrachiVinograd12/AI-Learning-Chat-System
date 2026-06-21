@@ -1,0 +1,40 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Welcome back, {{ user?.name }}!</p>
+    </div>
+    <div class="dashboard__actions">
+      <a routerLink="/chat" class="btn btn--primary">Open Chat</a>
+      <button type="button" class="btn btn--ghost" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <section class="dashboard__cards">
+    <article class="card">
+      <h2>AI Learning Chat</h2>
+      <p>Ask questions, practice exercises, take mock exams, or get hints from your AI tutor.</p>
+      <a routerLink="/chat" class="card__link">Start chatting →</a>
+    </article>
+
+    <article class="card">
+      <h2>Learning Modes</h2>
+      <ul>
+        <li><strong>Explanation</strong> — simple topic explanations</li>
+        <li><strong>Practice</strong> — generated exercises</li>
+        <li><strong>Exam</strong> — simulated tests</li>
+        <li><strong>Hint</strong> — progressive hints</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Your Account</h2>
+      <dl>
+        <dt>Email</dt>
+        <dd>{{ user?.email }}</dd>
+        <dt>Role</dt>
+        <dd>{{ user?.role }}</dd>
+      </dl>
+    </article>
+  </section>
+</div>

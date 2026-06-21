@@ -1,0 +1,116 @@
+<div class="admin">
+  <header class="admin__header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Platform overview — {{ user?.name }}</p>
+    </div>
+    <button type="button" class="btn btn--ghost" (click)="logout()">Logout</button>
+  </header>
+
+  @if (loading && !stats) {
+    <p class="admin__status">Loading...</p>
+  } @else if (error) {
+    <p class="admin__status admin__status--error">{{ error }}</p>
+  } @else {
+    @if (stats) {
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-card__value">{{ stats.totalUsers }}</span>
+          <span class="stat-card__label">Total Users</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__value">{{ stats.totalConversations }}</span>
+          <span class="stat-card__label">Conversations</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__value">{{ stats.totalMessages }}</span>
+          <span class="stat-card__label">Messages</span>
+        </div>
+      </section>
+
+      <div class="admin__grid">
+        <section class="panel">
+          <h2>Messages per User</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Messages</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of stats.messagesPerUser; track row.userId) {
+                <tr>
+                  <td>{{ row.userName }}</td>
+                  <td>{{ row.userEmail }}</td>
+                  <td>{{ row.messageCount }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3">No data yet</td></tr>
+              }
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel">
+          <h2>Most Used Subjects</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Conversations</th>
+                <th>Messages</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of stats.mostUsedSubjects; track row.subject) {
+                <tr>
+                  <td>{{ row.subject }}</td>
+                  <td>{{ row.conversationCount }}</td>
+                  <td>{{ row.messageCount }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3">No data yet</td></tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      </div>
+    }
+
+    <section class="panel">
+      <div class="panel__header">
+        <h2>All Conversations</h2>
+        <select [value]="selectedUserId" (change)="onUserFilterChange($any($event.target).value)">
+          <option value="">All users</option>
+          @for (u of users; track u.id) {
+            <option [value]="u.id">{{ u.name }} ({{ u.email }})</option>
+          }
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>User</th>
+            <th>Messages</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of conversations; track c.id) {
+            <tr>
+              <td>{{ c.subject }}</td>
+              <td>{{ c.userName }}</td>
+              <td>{{ c.messageCount }}</td>
+              <td>{{ c.createdAt | date: 'short' }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4">No conversations found</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</div>

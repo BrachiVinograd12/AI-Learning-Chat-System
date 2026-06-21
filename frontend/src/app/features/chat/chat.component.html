@@ -1,23 +1,157 @@
-<section class="chat">
-  <h1>AI Chat</h1>
+<div class="chat-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.sidebar--collapsed]="!sidebarOpen">
+    <div class="sidebar__top">
+      <button type="button" class="sidebar__new-chat" (click)="openNewChat()">
+        + New chat
+      </button>
+    </div>
 
-  <div class="chat__messages">
-    @for (msg of messages; track $index) {
-      <div class="chat__message" [class.chat__message--user]="msg.role === 'user'">
-        <strong>{{ msg.role === 'user' ? 'You' : 'Assistant' }}</strong>
-        <p>{{ msg.content }}</p>
+    <nav class="sidebar__list">
+      @for (conv of storedConversations; track conv.id) {
+        <button
+          type="button"
+          class="sidebar__item"
+          [class.sidebar__item--active]="conversation?.id === conv.id"
+          (click)="loadConversation(conv.id)"
+        >
+          <span class="sidebar__item-title">{{ conv.subject }}</span>
+          <button
+            type="button"
+            class="sidebar__item-delete"
+            (click)="deleteConversation(conv.id, $event)"
+            title="Remove from list"
+          >×</button>
+        </button>
+      } @empty {
+        <p class="sidebar__empty">No conversations yet</p>
+      }
+    </nav>
+
+    <div class="sidebar__footer">
+      <a routerLink="/dashboard" class="sidebar__link">Dashboard</a>
+      <button type="button" class="sidebar__link sidebar__link--btn" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main chat area -->
+  <main class="chat-main">
+    <header class="chat-header">
+      <button type="button" class="chat-header__toggle" (click)="toggleSidebar()">☰</button>
+      <div class="chat-header__info">
+        <h1>{{ conversation?.subject ?? 'AI Learning Assistant' }}</h1>
+        @if (conversation) {
+          <span class="mode-badge" [ngClass]="activeMode.badgeClass">
+            {{ activeMode.icon }} {{ activeMode.headerLabel }}
+          </span>
+        }
       </div>
-    }
-  </div>
+    </header>
 
-  <form class="chat__input" (ngSubmit)="sendMessage()">
-    <input
-      type="text"
-      [(ngModel)]="message"
-      name="message"
-      placeholder="Type your question..."
-      autocomplete="off"
-    />
-    <button type="submit">Send</button>
-  </form>
-</section>
+    @if (error) {
+      <div class="chat-error">{{ error }}</div>
+    }
+
+    <div class="chat-messages">
+      @if (!conversation) {
+        <div class="chat-welcome">
+          <h2>How can I help you learn today?</h2>
+          <p>Start a new chat to begin your learning session.</p>
+          <button type="button" class="btn-primary" (click)="openNewChat()">+ New chat</button>
+        </div>
+      } @else if (loading) {
+        <p class="chat-status">Loading...</p>
+      } @else {
+        @for (msg of conversation.messages; track msg.id) {
+          <div class="message" [class.message--user]="msg.role === MessageRole.User">
+            <div class="message__avatar">
+              {{ msg.role === MessageRole.User ? '👤' : '🤖' }}
+            </div>
+            <div class="message__body">
+              <div class="message__meta">
+                <span class="message__role">
+                  {{ msg.role === MessageRole.User ? 'You' : 'Assistant' }}
+                </span>
+                <span class="mode-badge mode-badge--sm" [ngClass]="getModeBadgeClass(msg.mode)">
+                  {{ getModeLabel(msg.mode) }}
+                </span>
+              </div>
+              <div class="message__content">{{ msg.content }}</div>
+            </div>
+          </div>
+        }
+        @if (sending) {
+          <div class="message message--assistant">
+            <div class="message__avatar">🤖</div>
+            <div class="message__body">
+              <div class="message__content message__content--typing">{{ activeMode.typingLabel }}</div>
+            </div>
+          </div>
+        }
+      }
+      <div #messagesEnd></div>
+    </div>
+
+    @if (conversation) {
+      <footer class="chat-input-area">
+        <div class="mode-selector">
+          <label class="mode-selector__label" for="learning-mode">
+            Learning mode
+          </label>
+          <select
+            id="learning-mode"
+            class="mode-selector__dropdown"
+            [ngModel]="selectedMode"
+            (ngModelChange)="onModeChange($event)"
+          >
+            @for (m of modes; track m.value) {
+              <option [value]="m.value">{{ m.icon }} {{ m.label }}</option>
+            }
+          </select>
+          <p class="mode-selector__hint">{{ activeMode.description }}</p>
+        </div>
+        <form class="chat-input" (ngSubmit)="sendMessage()">
+          <textarea
+            [(ngModel)]="messageInput"
+            name="message"
+            [placeholder]="activeMode.inputPlaceholder"
+            rows="1"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+            [disabled]="sending"
+          ></textarea>
+          <button
+            type="submit"
+            [disabled]="!messageInput.trim() || sending"
+            [title]="activeMode.sendLabel"
+          >
+            {{ activeMode.sendLabel }}
+          </button>
+        </form>
+      </footer>
+    }
+  </main>
+</div>
+
+<!-- New chat modal -->
+@if (showNewChatModal) {
+  <div class="modal-overlay" (click)="showNewChatModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>New learning session</h2>
+      <p>What subject would you like to study?</p>
+      <input
+        type="text"
+        [(ngModel)]="subjectInput"
+        placeholder="e.g. JavaScript, Machine Learning..."
+        (keydown.enter)="createConversation()"
+      />
+      <div class="modal__actions">
+        <button type="button" class="btn-ghost" (click)="showNewChatModal = false">Cancel</button>
+        <button type="button" class="btn-primary" (click)="createConversation()" [disabled]="loading">
+          {{ loading ? 'Creating...' : 'Start' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

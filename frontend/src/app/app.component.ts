@@ -1,14 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { HeaderComponent } from './shared/components/header/header.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
+  styles: ':host { display: block; height: 100vh; }',
 })
-export class AppComponent {
-  title = 'AI Learning Platform';
-}
+export class AppComponent {}
